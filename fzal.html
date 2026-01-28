@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片轮播</title>
+    <title>视频教程</title>
     <style>
         body {
             margin: 0;
@@ -56,8 +56,8 @@
               <img class="slide" src="https://img1.baidu.com/it/u=4261417784,2894086704&fm=253&app=138&f=JPEG?w=800&h=1336"/>
               <img class="slide" src="https://img0.baidu.com/it/u=1932039129,2243037765&fm=253&app=138&f=JPEG?w=800&h=1340"/>
           
-        <div class="arrow left-arrow">〈</div>
-        <div class="arrow right-arrow">〉</div>
+        <div class="arrow left-arrow">上一张〈</div>
+        <div class="arrow right-arrow">〉下一张</div>
     </div>
 
     <script>
@@ -85,7 +85,7 @@
         }
 
         // 自动轮播
-        let autoSlide = setInterval(nextSlide, 5000);
+        let autoSlide = setInterval(nextSlide, 3000);
 
         // 点击事件
         slideshow.addEventListener('click', (e) => {
@@ -94,7 +94,7 @@
 
             // 重置自动轮播计时器
             clearInterval(autoSlide);
-            autoSlide = setInterval(nextSlide, 5000);
+            autoSlide = setInterval(nextSlide, 3000);
 
             // 判断点击区域
             if (clickX < rect.width / 2) {
