@@ -1,239 +1,471 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片教程</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #f5f5f5;
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .title-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .main-title {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .sub-title {
-            font-size: 16px;
-            color: #666;
-        }
-        .slideshow-container {
-            position: relative;
-            width: 100%;
-            height: 70vh;
-            background: #000;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        .slide {
-            display: none;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        .slide.active {
-            display: block;
-        }
-        .arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 24px;
-            color: rgba(255, 255, 255, 0.7);
-            background: rgba(0, 0, 0, 0.3);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.3s ease;
-        }
-        .arrow:hover {
-            background: rgba(0, 0, 0, 0.5);
-            color: #fff;
-        }
-        .left-arrow {
-            left: 20px;
-        }
-        .right-arrow {
-            right: 20px;
-        }
-        .slide-indicators {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-        }
-        .indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            cursor: pointer;
-        }
-        .indicator.active {
-            background: #fff;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,
+maximum-scale=3.0, user-scalable=yes">
+<title>图片教程查看器</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+background-color: #f5f5f5;
+touch-action: manipulation;
+-webkit-tap-highlight-color: transparent;
+}
+.container {
+max-width: 100%;
+margin: 0 auto;
+padding: 20px 0;
+}
+.title {
+text-align: center;
+margin-bottom: 10px;
+padding: 0 20px;
+}
+.main-title {
+font-size: 22px;
+font-weight: bold;
+color: #333;
+margin-bottom: 5px;
+}
+.sub-title {
+font-size: 14px;
+color: #666;
+}
+.slider-container {
+position: relative;
+width: 100%;
+height: 70vh;
+overflow: hidden;
+}
+.slider {
+display: flex;
+width: 900%;
+height: 100%;
+transition: transform 0.3s ease;
+}
+.slide {
+flex: 0 0 11.11%;
+height: 100%;
+display: flex;
+align-items: center;
+justify-content: center;
+touch-action: manipulation;
+cursor: pointer;
+}
+.slide img {
+max-width: 100%;
+max-height: 100%;
+object-fit: contain;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+-webkit-touch-callout: none;
+-webkit-tap-highlight-color: transparent;
+transition: transform 0.2s ease;
+}
+.indicators {
+display: flex;
+justify-content: center;
+margin-top: 15px;
+gap: 8px;
+}
+.indicator {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+background-color: #ccc;
+cursor: pointer;
+transition: background-color 0.3s;
+}
+.indicator.active {
+background-color: #007AFF;
+}
+/* 全屏模式样式 */
+.fullscreen-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100vw;
+height: 100vh;
+background-color: rgba(0, 0, 0, 0.98);
+z-index: 1000;
+display: none;
+align-items: center;
+justify-content: center;
+touch-action: manipulation;
+}
+.fullscreen-image {
+max-width: 95vw;
+max-height: 95vh;
+object-fit: contain;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+-webkit-touch-callout: none;
+-webkit-tap-highlight-color: transparent;
+cursor: grab;
+transition: transform 0.1s ease;
+}
+.fullscreen-image:active {
+cursor: grabbing;
+}
+.fullscreen-close {
+position: absolute;
+top: 20px;
+right: 20px;
+width: 40px;
+height: 40px;
+background-color: rgba(255, 255, 255, 0.2);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+color: white;
+font-size: 24px;
+cursor: pointer;
+z-index: 1001;
+}
+.fullscreen-counter {
+position: absolute;
+top: 20px;
+left: 20px;
+color: white;
+font-size: 16px;
+background-color: rgba(0, 0, 0, 0.5);
+padding: 5px 10px;
+border-radius: 15px;
+z-index: 1001;
+}
+@media (max-width: 768px) {
+.slider-container {
+height: 60vh;
+}
+.fullscreen-close {
+width: 35px;
+height: 35px;
+font-size: 20px;
+}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="title-section">
-            <h1 class="main-title">请按图片教程步骤操作</h1>
-            <p class="sub-title">点图片左边上一张，点图片右边下一张</p >
-        </div>
-        
-        <div class="slideshow-container" id="slideshow">
-            <!-- 图片区域 -->
-            < img class="slide" src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimage109.360doc.com%2FDownloadImg%2F2025%2F04%2F0321%2F296122601_4_20250403090445718&refer=http%3A%2F%2Fimage109.360doc.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1772208089&t=6925e51d8d17580529e39cd6927e68d9" alt="教程步骤1">
-            < img class="slide" src="https://img1.baidu.com/it/u=4261417784,2894086704&fm=253&app=138&f=JPEG?w=800&h=1336" alt="教程步骤2">
-            < img class="slide" src="https://img0.baidu.com/it/u=1932039129,2243037765&fm=253&app=138&f=JPEG?w=800&h=1340" alt="教程步骤3">
-            
-            <!-- 箭头按钮 -->
-            <div class="arrow left-arrow">〈</div>
-            <div class="arrow right-arrow">〉</div>
-            
-            <!-- 指示器 -->
-            <div class="slide-indicators"></div>
-        </div>
-    </div>
-
-    <script>
-        const slides = document.querySelectorAll('.slide');
-        const slideshow = document.querySelector('.slideshow-container');
-        const indicatorsContainer = document.querySelector('.slide-indicators');
-        const leftArrow = document.querySelector('.left-arrow');
-        const rightArrow = document.querySelector('.right-arrow');
-        let currentSlide = 0;
-        let autoSlideInterval;
-
-        // 创建指示器
-        function createIndicators() {
-            indicatorsContainer.innerHTML = '';
-            slides.forEach((_, index) => {
-                const indicator = document.createElement('div');
-                indicator.className = 'indicator';
-                if (index === currentSlide) {
-                    indicator.classList.add('active');
-                }
-                indicator.addEventListener('click', () => {
-                    goToSlide(index);
-                });
-                indicatorsContainer.appendChild(indicator);
-            });
-        }
-
-        // 显示指定幻灯片
-        function showSlide(index) {
-            slides.forEach((slide, i) => {
-                slide.classList.toggle('active', i === index);
-            });
-            
-            // 更新指示器
-            const indicators = document.querySelectorAll('.indicator');
-            indicators.forEach((indicator, i) => {
-                indicator.classList.toggle('active', i === index);
-            });
-        }
-
-        // 跳转到指定幻灯片
-        function goToSlide(index) {
-            currentSlide = index;
-            showSlide(currentSlide);
-            resetAutoSlide();
-        }
-
-        // 下一张
-        function nextSlide() {
-            currentSlide = (currentSlide + 1) % slides.length;
-            showSlide(currentSlide);
-        }
-
-        // 上一张
-        function prevSlide() {
-            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-            showSlide(currentSlide);
-        }
-
-        // 启动自动轮播
-        function startAutoSlide() {
-            autoSlideInterval = setInterval(nextSlide, 3000);
-        }
-
-        // 重置自动轮播
-        function resetAutoSlide() {
-            clearInterval(autoSlideInterval);
-            startAutoSlide();
-        }
-
-        // 点击事件处理
-        slideshow.addEventListener('click', (e) => {
-            const rect = slideshow.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            
-            // 重置自动轮播
-            resetAutoSlide();
-            
-            // 判断点击区域（排除箭头按钮区域）
-            if (e.target === leftArrow || e.target === rightArrow) {
-                return; // 点击的是箭头按钮，由按钮的点击事件处理
-            }
-            
-            if (clickX < rect.width / 2) {
-                prevSlide(); // 点击左半边，上一张
-            } else {
-                nextSlide(); // 点击右半边，下一张
-            }
-        });
-
-        // 箭头按钮点击事件
-        leftArrow.addEventListener('click', (e) => {
-            e.stopPropagation(); // 阻止冒泡，避免触发父容器的点击事件
-            prevSlide();
-            resetAutoSlide();
-        });
-
-        rightArrow.addEventListener('click', (e) => {
-            e.stopPropagation();
-            nextSlide();
-            resetAutoSlide();
-        });
-
-        // 鼠标悬停时暂停轮播
-        slideshow.addEventListener('mouseenter', () => {
-            clearInterval(autoSlideInterval);
-        });
-
-        slideshow.addEventListener('mouseleave', () => {
-            startAutoSlide();
-        });
-
-        // 初始化
-        createIndicators();
-        showSlide(currentSlide);
-        startAutoSlide();
-    </script>
+<div class="container">
+<div class="title">
+<h1 class="main-title">请按图片教程步骤操作</h1>
+<p class="sub-title">图片可左右滑动切换</p>
+</div>
+<div class="slider-container">
+<div class="slider" id="slider">
+<div class="slide">
+<img src="https://i.postimg.cc/SyD592bj/11.jpg" alt="教程图片1"
+draggable="false" data-index="0">
+</div>
+<div class="slide">
+<img src="https://i.postimg.cc/PX7R6gxn/22.jpg" alt="教程图片2"
+draggable="false" data-index="1">
+</div>
+<div class="slide">
+<img src="https://i.postimg.cc/5x6rVKL3/33.jpg" alt="教程图片3"
+draggable="false" data-index="2">
+</div>
+<div class="slide">
+<img src="https://i.postimg.cc/Sk1fc6nz/44.jpg" alt="教程图片4"
+draggable="false" data-index="3">
+</div>
+<div class="slide">
+<img src="https://i.postimg.cc/6BGnRDsk/55.jpg" alt="教程图片5"
+draggable="false" data-index="4">
+</div>
+<div class="slide">
+<img src="https://i.postimg.cc/jqRPRqZS/66.jpg" alt="教程图片6"
+draggable="false" data-index="5">
+</div>
+<div class="slide">
+<img src="https://i.postimg.cc/s3GQdZsq/77.jpg" alt="教程图片7"
+draggable="false" data-index="6">
+</div>
+<div class="slide">
+<img src="https://i.postimg.cc/SmWrbK6g/88.jpg" alt="教程图片8"
+draggable="false" data-index="7">
+</div>
+<div class="slide">
+<img src="https://i.postimg.cc/WNKrkRmq/99.jpg" alt="教程图片9"
+draggable="false" data-index="8">
+</div>
+</div>
+</div>
+<div class="indicators" id="indicators">
+<div class="indicator active" data-index="0"></div>
+<div class="indicator" data-index="1"></div>
+<div class="indicator" data-index="2"></div>
+<div class="indicator" data-index="3"></div>
+<div class="indicator" data-index="4"></div>
+<div class="indicator" data-index="5"></div>
+<div class="indicator" data-index="6"></div>
+<div class="indicator" data-index="7"></div>
+<div class="indicator" data-index="8"></div>
+</div>
+</div>
+<!-- 全屏模式 - 移除了切换按钮 -->
+<div class="fullscreen-overlay" id="fullscreenOverlay">
+<div class="fullscreen-close" id="fullscreenClose">×</div>
+<div class="fullscreen-counter" id="fullscreenCounter"></div>
+<img class="fullscreen-image" id="fullscreenImage" src="" alt="">
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+const slider = document.getElementById('slider');
+const slides = document.querySelectorAll('.slide');
+const indicators = document.querySelectorAll('.indicator');
+const images = document.querySelectorAll('.slide img');
+// 全屏模式元素
+const fullscreenOverlay = document.getElementById('fullscreenOverlay');
+const fullscreenImage = document.getElementById('fullscreenImage');
+const fullscreenClose = document.getElementById('fullscreenClose');
+const fullscreenCounter = document.getElementById('fullscreenCounter');
+let currentIndex = 0;
+let fullscreenIndex = 0;
+const totalSlides = slides.length;
+// 更新指示器
+function updateIndicators() {
+indicators.forEach((indicator, index) => {
+indicator.classList.toggle('active', index === currentIndex);
+});
+}
+// 滑动到指定索引
+function goToSlide(index) {
+if (index < 0) index = 0;
+if (index >= totalSlides) index = totalSlides - 1;
+currentIndex = index;
+slider.style.transform = `translateX(-${currentIndex * 11.11}%)`;
+updateIndicators();
+}
+// 上一张
+function prevSlide() {
+goToSlide(currentIndex - 1);
+}
+// 下一张
+function nextSlide() {
+goToSlide(currentIndex + 1);
+}
+// 指示器点击事件
+indicators.forEach(indicator => {
+indicator.addEventListener('click', function() {
+const index = parseInt(this.getAttribute('data-index'));
+goToSlide(index);
+});
+});
+// 触摸滑动事件（图片切换）
+let startX = 0;
+let isDragging = false;
+slider.addEventListener('touchstart', function(e) {
+startX = e.touches[0].clientX;
+isDragging = true;
+}, { passive: true });
+slider.addEventListener('touchmove', function(e) {
+if (!isDragging) return;
+e.preventDefault();
+}, { passive: false });
+slider.addEventListener('touchend', function(e) {
+if (!isDragging) return;
+const endX = e.changedTouches[0].clientX;
+const diffX = startX - endX;
+if (Math.abs(diffX) > 50) { // 滑动距离阈值
+if (diffX > 0) {
+nextSlide(); // 向左滑动，下一张
+} else {
+prevSlide(); // 向右滑动，上一张
+}
+}
+isDragging = false;
+}, { passive: true });
+// 鼠标拖动事件（桌面端支持，图片切换）
+let mouseStartX = 0;
+let isMouseDown = false;
+slider.addEventListener('mousedown', function(e) {
+mouseStartX = e.clientX;
+isMouseDown = true;
+});
+document.addEventListener('mousemove', function(e) {
+if (!isMouseDown) return;
+e.preventDefault();
+});
+document.addEventListener('mouseup', function(e) {
+if (!isMouseDown) return;
+const mouseEndX = e.clientX;
+const mouseDiffX = mouseStartX - mouseEndX;
+if (Math.abs(mouseDiffX) > 50) {
+if (mouseDiffX > 0) {
+nextSlide();
+} else {
+prevSlide();
+}
+}
+isMouseDown = false;
+});
+// 全屏模式功能
+function openFullscreen(index) {
+fullscreenIndex = index;
+fullscreenImage.src = images[index].src;
+fullscreenImage.alt = images[index].alt;
+fullscreenCounter.textContent = `${index + 1} / ${totalSlides}`;
+fullscreenOverlay.style.display = 'flex';
+document.body.style.overflow = 'hidden';
+// 重置图片变换
+fullscreenImage.style.transform = 'scale(1) translate(0px, 0px)';
+fullscreenScale = 1;
+fullscreenTranslateX = 0;
+fullscreenTranslateY = 0;
+}
+function closeFullscreen() {
+fullscreenOverlay.style.display = 'none';
+document.body.style.overflow = '';
+}
+// 全屏模式事件监听
+fullscreenClose.addEventListener('click', closeFullscreen);
+// ESC键关闭全屏
+document.addEventListener('keydown', function(e) {
+if (e.key === 'Escape' && fullscreenOverlay.style.display === 'flex') {
+closeFullscreen();
+}
+});
+// 图片点击进入全屏模式
+images.forEach((img, index) => {
+img.addEventListener('click', function(e) {
+// 单击进入全屏
+openFullscreen(index);
+});
+});
+// 全屏图片拖拽和缩放功能
+let fullscreenScale = 1;
+let fullscreenTranslateX = 0;
+let fullscreenTranslateY = 0;
+let isFullscreenDraggingImg = false;
+let fullscreenDragStartX = 0;
+let fullscreenDragStartY = 0;
+let fullscreenDragStartTranslateX = 0;
+let fullscreenDragStartTranslateY = 0;
+function updateFullscreenTransform() {
+fullscreenImage.style.transform = `translate(${fullscreenTranslateX}px,
+${fullscreenTranslateY}px) scale(${fullscreenScale})`;
+}
+// 全屏图片鼠标拖拽
+fullscreenImage.addEventListener('mousedown', function(e) {
+e.preventDefault();
+isFullscreenDraggingImg = true;
+fullscreenDragStartX = e.clientX;
+fullscreenDragStartY = e.clientY;
+fullscreenDragStartTranslateX = fullscreenTranslateX;
+fullscreenDragStartTranslateY = fullscreenTranslateY;
+fullscreenImage.style.cursor = 'grabbing';
+});
+document.addEventListener('mousemove', function(e) {
+if (isFullscreenDraggingImg) {
+e.preventDefault();
+fullscreenTranslateX = fullscreenDragStartTranslateX + (e.clientX -
+fullscreenDragStartX);
+fullscreenTranslateY = fullscreenDragStartTranslateY + (e.clientY -
+fullscreenDragStartY);
+updateFullscreenTransform();
+}
+});
+document.addEventListener('mouseup', function() {
+if (isFullscreenDraggingImg) {
+isFullscreenDraggingImg = false;
+fullscreenImage.style.cursor = 'grab';
+}
+});
+// 全屏图片双指缩放
+let fullscreenInitialDistance = 0;
+let fullscreenInitialScale = 1;
+let fullscreenInitialTranslateX = 0;
+let fullscreenInitialTranslateY = 0;
+let fullscreenInitialCenterX = 0;
+let fullscreenInitialCenterY = 0;
+fullscreenImage.addEventListener('touchstart', function(e) {
+if (e.touches.length === 2) {
+e.preventDefault();
+const touch1 = e.touches[0];
+const touch2 = e.touches[1];
+fullscreenInitialDistance = Math.hypot(
+touch2.clientX - touch1.clientX,
+touch2.clientY - touch1.clientY
+);
+fullscreenInitialScale = fullscreenScale;
+fullscreenInitialTranslateX = fullscreenTranslateX;
+fullscreenInitialTranslateY = fullscreenTranslateY;
+// 计算双指中心点
+fullscreenInitialCenterX = (touch1.clientX + touch2.clientX) / 2;
+fullscreenInitialCenterY = (touch1.clientY + touch2.clientY) / 2;
+} else if (e.touches.length === 1) {
+// 单指触摸开始，记录初始位置用于拖拽
+const touch = e.touches[0];
+fullscreenDragStartX = touch.clientX;
+fullscreenDragStartY = touch.clientY;
+fullscreenDragStartTranslateX = fullscreenTranslateX;
+fullscreenDragStartTranslateY = fullscreenTranslateY;
+}
+}, { passive: false });
+fullscreenImage.addEventListener('touchmove', function(e) {
+if (e.touches.length === 2) {
+e.preventDefault();
+const touch1 = e.touches[0];
+const touch2 = e.touches[1];
+const currentDistance = Math.hypot(
+touch2.clientX - touch1.clientX,
+touch2.clientY - touch1.clientY
+);
+if (fullscreenInitialDistance > 0) {
+const newScale = Math.max(1, Math.min(5, fullscreenInitialScale *
+(currentDistance / fullscreenInitialDistance)));
+fullscreenScale = newScale;
+// 计算当前双指中心点
+const currentCenterX = (touch1.clientX + touch2.clientX) / 2;
+const currentCenterY = (touch1.clientY + touch2.clientY) / 2;
+// 计算偏移量，使缩放以双指中心为基准
+const deltaX = currentCenterX - fullscreenInitialCenterX;
+const deltaY = currentCenterY - fullscreenInitialCenterY;
+fullscreenTranslateX = fullscreenInitialTranslateX + deltaX * (fullscreenScale /
+fullscreenInitialScale - 1);
+fullscreenTranslateY = fullscreenInitialTranslateY + deltaY * (fullscreenScale /
+fullscreenInitialScale - 1);
+updateFullscreenTransform();
+}
+} else if (e.touches.length === 1) {
+// 单指触摸移动，拖拽图片
+e.preventDefault();
+const touch = e.touches[0];
+fullscreenTranslateX = fullscreenDragStartTranslateX + (touch.clientX -
+fullscreenDragStartX);
+fullscreenTranslateY = fullscreenDragStartTranslateY + (touch.clientY -
+fullscreenDragStartY);
+updateFullscreenTransform();
+}
+}, { passive: false });
+fullscreenImage.addEventListener('touchend', function() {
+fullscreenInitialDistance = 0;
+});
+// 键盘左右键支持（仅在普通模式有效）
+document.addEventListener('keydown', function(e) {
+if (e.key === 'ArrowLeft') {
+if (fullscreenOverlay.style.display !== 'flex') {
+prevSlide();
+}
+} else if (e.key === 'ArrowRight') {
+if (fullscreenOverlay.style.display !== 'flex') {
+nextSlide();
+}
+}
+});
+});
+</script>
 </body>
 </html>
