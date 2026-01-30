@@ -3,139 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图片教程播放器</title>
+    <title>图片教程</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f5f5f5;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background: #f5f5f5;
+            font-family: Arial, sans-serif;
         }
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
-            background: white;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .title {
+        .title-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .main-title {
             font-size: 24px;
             font-weight: bold;
             color: #333;
             margin-bottom: 10px;
         }
-        .subtitle {
+        .sub-title {
             font-size: 16px;
             color: #666;
-            margin-bottom: 20px;
         }
-        .image-container {
+        .slideshow-container {
             position: relative;
             width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            cursor: pointer;
-        }
-        .image-container img {
-            width: 100%;
-            height: auto;
-            display: block;
+            height: 70vh;
+            background: #000;
             border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
-        .nav-hint {
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .slide.active {
+            display: block;
+        }
+        .arrow {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0,0,0,0.5);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(0, 0, 0, 0.3);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
         }
-        .nav-hint.left {
-            left: 10px;
+        .arrow:hover {
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
         }
-        .nav-hint.right {
-            right: 10px;
+        .left-arrow {
+            left: 20px;
         }
-        .image-container:hover .nav-hint {
-            opacity: 1;
+        .right-arrow {
+            right: 20px;
         }
-        .step-indicator {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #666;
+        .slide-indicators {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+        }
+        .indicator.active {
+            background: #fff;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="title">请按图片教程步骤操作</div>
-        <div class="subtitle">点图片左边上一张，点图片右边下一张</div>
-        
-        <div class="image-container" id="imageContainer">
-            < img id="currentImage" src="https://i.postimg.cc/mD18frDG/11.jpg" alt="教程图片">
-            <div class="nav-hint left">上一张</div>
-            <div class="nav-hint right">下一张</div>
+        <div class="title-section">
+            <h1 class="main-title">请按图片教程步骤操作</h1>
+            <p class="sub-title">点图片左边上一张，点图片右边下一张</p >
         </div>
         
-        <div class="step-indicator" id="stepIndicator">步骤 1/9</div>
+        <div class="slideshow-container" id="slideshow">
+            <!-- 图片区域 -->
+            < img class="slide" src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimage109.360doc.com%2FDownloadImg%2F2025%2F04%2F0321%2F296122601_4_20250403090445718&refer=http%3A%2F%2Fimage109.360doc.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1772208089&t=6925e51d8d17580529e39cd6927e68d9" alt="教程步骤1">
+            < img class="slide" src="https://img1.baidu.com/it/u=4261417784,2894086704&fm=253&app=138&f=JPEG?w=800&h=1336" alt="教程步骤2">
+            < img class="slide" src="https://img0.baidu.com/it/u=1932039129,2243037765&fm=253&app=138&f=JPEG?w=800&h=1340" alt="教程步骤3">
+            
+            <!-- 箭头按钮 -->
+            <div class="arrow left-arrow">〈</div>
+            <div class="arrow right-arrow">〉</div>
+            
+            <!-- 指示器 -->
+            <div class="slide-indicators"></div>
+        </div>
     </div>
 
     <script>
-        // 图片URL数组
-        const imageUrls = [
-            "https://i.postimg.cc/mD18frDG/11.jpg",
-            "https://i.postimg.cc/T1r01Hgt/22.jpg", 
-            "https://i.postimg.cc/W3c8mn9F/33.jpg",
-            "https://i.postimg.cc/L8fPpZBH/44.jpg",
-            "https://i.postimg.cc/FKNYXCHp/55.jpg",
-            "https://i.postimg.cc/HnPV2gqq/66.jpg",
-            "https://i.postimg.cc/bv8N1rG9/77.jpg",
-            "https://i.postimg.cc/pdL8DR1j/88.jpg",
-            "https://i.postimg.cc/d32DbxxJ/99.jpg"
-        ];
+        const slides = document.querySelectorAll('.slide');
+        const slideshow = document.querySelector('.slideshow-container');
+        const indicatorsContainer = document.querySelector('.slide-indicators');
+        const leftArrow = document.querySelector('.left-arrow');
+        const rightArrow = document.querySelector('.right-arrow');
+        let currentSlide = 0;
+        let autoSlideInterval;
 
-        let currentIndex = 0;
-        const currentImage = document.getElementById('currentImage');
-        const stepIndicator = document.getElementById('stepIndicator');
-        const imageContainer = document.getElementById('imageContainer');
-
-        // 更新图片和指示器
-        function updateImage() {
-            currentImage.src = imageUrls[currentIndex];
-            stepIndicator.textContent = `步骤 ${currentIndex + 1}/9`;
+        // 创建指示器
+        function createIndicators() {
+            indicatorsContainer.innerHTML = '';
+            slides.forEach((_, index) => {
+                const indicator = document.createElement('div');
+                indicator.className = 'indicator';
+                if (index === currentSlide) {
+                    indicator.classList.add('active');
+                }
+                indicator.addEventListener('click', () => {
+                    goToSlide(index);
+                });
+                indicatorsContainer.appendChild(indicator);
+            });
         }
 
-        // 点击图片区域处理
-        imageContainer.addEventListener('click', function(e) {
-            const rect = this.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const containerWidth = rect.width;
+        // 显示指定幻灯片
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
             
-            // 判断点击位置（左侧1/3为上一张，右侧1/3为下一张）
-            if (clickX < containerWidth / 3) {
-                // 点击左侧：上一张
-                if (currentIndex > 0) {
-                    currentIndex--;
-                    updateImage();
-                }
-            } else if (clickX > containerWidth * 2 / 3) {
-                // 点击右侧：下一张
-                if (currentIndex < imageUrls.length - 1) {
-                    currentIndex++;
-                    updateImage();
-                }
+            // 更新指示器
+            const indicators = document.querySelectorAll('.indicator');
+            indicators.forEach((indicator, i) => {
+                indicator.classList.toggle('active', i === index);
+            });
+        }
+
+        // 跳转到指定幻灯片
+        function goToSlide(index) {
+            currentSlide = index;
+            showSlide(currentSlide);
+            resetAutoSlide();
+        }
+
+        // 下一张
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // 上一张
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        // 启动自动轮播
+        function startAutoSlide() {
+            autoSlideInterval = setInterval(nextSlide, 3000);
+        }
+
+        // 重置自动轮播
+        function resetAutoSlide() {
+            clearInterval(autoSlideInterval);
+            startAutoSlide();
+        }
+
+        // 点击事件处理
+        slideshow.addEventListener('click', (e) => {
+            const rect = slideshow.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            
+            // 重置自动轮播
+            resetAutoSlide();
+            
+            // 判断点击区域（排除箭头按钮区域）
+            if (e.target === leftArrow || e.target === rightArrow) {
+                return; // 点击的是箭头按钮，由按钮的点击事件处理
+            }
+            
+            if (clickX < rect.width / 2) {
+                prevSlide(); // 点击左半边，上一张
+            } else {
+                nextSlide(); // 点击右半边，下一张
             }
         });
 
+        // 箭头按钮点击事件
+        leftArrow.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止冒泡，避免触发父容器的点击事件
+            prevSlide();
+            resetAutoSlide();
+        });
+
+        rightArrow.addEventListener('click', (e) => {
+            e.stopPropagation();
+            nextSlide();
+            resetAutoSlide();
+        });
+
+        // 鼠标悬停时暂停轮播
+        slideshow.addEventListener('mouseenter', () => {
+            clearInterval(autoSlideInterval);
+        });
+
+        slideshow.addEventListener('mouseleave', () => {
+            startAutoSlide();
+        });
+
         // 初始化
-        updateImage();
+        createIndicators();
+        showSlide(currentSlide);
+        startAutoSlide();
     </script>
 </body>
 </html>
